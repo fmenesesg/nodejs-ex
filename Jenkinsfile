@@ -2,50 +2,41 @@ library identifier: "pipeline-library@1.6",
 retriever: modernSCM(
   [
     $class: "GitSCMSource",
-    remote: "https://github.com/redhat-cop/pipeline-library.git"
+    remote: "https://github.com/fmenesesg/nodejs-ex.git"
   ]
 )
 
-
 openshift.withCluster() {
-  env.APP_NAME = "${JOB_NAME}".replaceAll(/-build.*/, '')
-  env.ARTIFACT_DIRECTORY = "basic-nginx/build"
+  env.APP_NAME = "pelorus-nodejs"
   env.BUILD = openshift.project()
   env.DEV = "${APP_NAME}-dev"
   env.STAGE = "${APP_NAME}-stage"
   env.PROD = "${APP_NAME}-prod"
   echo "Starting Pipeline for ${APP_NAME}..."
 }
+node('nodejs') {
+  stage 'build'
+  openshiftBuild(buildConfig: 'nodejs-ex', showBuildLogs: 'true')
+  stage 'deploy'
+  openshiftDeploy(deploymentConfig: 'nodejs-ex')
+}
 
 pipeline {
   agent {
-    label 'maven'
+    label 'nodejs'
   }
 
   stages {
     
-    stage('Git Checkout') {
+/*    stage('Git Checkout') {
       steps {
         git url: "${SOURCE_REPOSITORY_URL}", branch: "${SOURCE_REPOSITORY_REF}"
       }
-    }
+    }*/
 
     stage('Build') {
       steps {
-        script {
-          sh """
-              cd basic-nginx
-              mkdir build
-              cp index.html build/index.html
-              cp nginx.conf build/nginx.conf
-            """
-        }
-      }
-    }
-
-    stage('Image Build') {
-      steps {
-        binaryBuild(projectName: "${BUILD}", buildConfigName: "${APP_NAME}", buildFromPath: "${ARTIFACT_DIRECTORY}")
+        openshiftBuild(buildConfig: 'nodejs-ex', showBuildLogs: 'true')
       }
     }
 
