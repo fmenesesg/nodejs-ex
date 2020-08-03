@@ -35,19 +35,19 @@ pipeline {
 
     stage('Build') {
       steps {
-        openshiftBuild(buildConfig: 'nodejs-ex', showBuildLogs: 'true')
+        openshift.openshiftBuild(buildConfig: 'nodejs-ex', showBuildLogs: 'true')
       }
     }
 
     stage('Promote from Build to Dev') {
       steps {
-        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
+        openshift.tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
       }
     }
 
     stage('Verify Deployment to Dev') {
       steps {
-        verifyDeployment(projectName: env.DEV, targetApp: env.APP_NAME)
+        openshift.verifyDeployment(projectName: env.DEV, targetApp: env.APP_NAME)
       }
     }
 
@@ -63,13 +63,13 @@ pipeline {
 
     stage('Promote from Dev to Stage') {
       steps {
-        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.DEV, toImagePath: env.STAGE)
+        openshift.tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.DEV, toImagePath: env.STAGE)
       }
     }
 
     stage('Verify Deployment to Stage') {
       steps {
-        verifyDeployment(projectName: env.STAGE, targetApp: env.APP_NAME)
+        openshift.verifyDeployment(projectName: env.STAGE, targetApp: env.APP_NAME)
       }
     }
 
@@ -85,13 +85,13 @@ pipeline {
 
     stage('Promote from Stage to Prod') {
       steps {
-        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.STAGE, toImagePath: env.PROD)
+        openshift.tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.STAGE, toImagePath: env.PROD)
       }
     }
 
     stage('Verify Deployment to Prod') {
       steps {
-        verifyDeployment(projectName: env.PROD, targetApp: env.APP_NAME)
+        openshift.verifyDeployment(projectName: env.PROD, targetApp: env.APP_NAME)
       }
     }
   }
