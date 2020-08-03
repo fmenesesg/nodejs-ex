@@ -13,12 +13,6 @@ openshift.withCluster() {
   env.PROD = "${APP_NAME}-prod"
   echo "Starting Pipeline for ${APP_NAME}..."
 }
-node('nodejs') {
-  stage 'build'
-  openshiftBuild(buildConfig: 'nodejs-ex', showBuildLogs: 'true')
-  stage 'deploy'
-  openshiftDeploy(deploymentConfig: 'nodejs-ex')
-}
 
 pipeline {
   agent {
@@ -35,19 +29,19 @@ pipeline {
 
     stage('Build') {
       steps {
-        openshift.openshiftBuild(buildConfig: 'nodejs-ex', showBuildLogs: 'true')
+        openshiftBuild(buildConfig: 'nodejs-ex', showBuildLogs: 'true')
       }
     }
 
     stage('Promote from Build to Dev') {
       steps {
-        openshift.tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
+        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
       }
     }
 
     stage('Verify Deployment to Dev') {
       steps {
-        openshift.verifyDeployment(projectName: env.DEV, targetApp: env.APP_NAME)
+        verifyDeployment(projectName: env.DEV, targetApp: env.APP_NAME)
       }
     }
 
@@ -63,13 +57,13 @@ pipeline {
 
     stage('Promote from Dev to Stage') {
       steps {
-        openshift.tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.DEV, toImagePath: env.STAGE)
+        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.DEV, toImagePath: env.STAGE)
       }
     }
 
     stage('Verify Deployment to Stage') {
       steps {
-        openshift.verifyDeployment(projectName: env.STAGE, targetApp: env.APP_NAME)
+        verifyDeployment(projectName: env.STAGE, targetApp: env.APP_NAME)
       }
     }
 
@@ -85,13 +79,13 @@ pipeline {
 
     stage('Promote from Stage to Prod') {
       steps {
-        openshift.tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.STAGE, toImagePath: env.PROD)
+        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.STAGE, toImagePath: env.PROD)
       }
     }
 
     stage('Verify Deployment to Prod') {
       steps {
-        openshift.verifyDeployment(projectName: env.PROD, targetApp: env.APP_NAME)
+        verifyDeployment(projectName: env.PROD, targetApp: env.APP_NAME)
       }
     }
   }
