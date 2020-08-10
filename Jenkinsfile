@@ -2,9 +2,9 @@
 def BUILD_NAME = 'nodejs-example'
 def NS_NAME = "fm-pelorus-nodejs"
 def BUILD = openshift.project()
-def NS_DEV = "${APP_NAME}-dev"
-def NS_STAGE = "${APP_NAME}-stage"
-def NS_PROD = "${APP_NAME}-prod"
+def NS_DEV = "fm-pelorus-dev"
+def NS_STAGE = "fm-pelorus-stage"
+def NS_PROD = "fm-pelorus-prod"
 
 pipeline {
   agent {
