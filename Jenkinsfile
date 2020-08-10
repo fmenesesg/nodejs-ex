@@ -29,7 +29,7 @@ pipeline {
 
     stage('Build') {
       steps {
-        openshiftBuild(buildConfig: 'nodejs-example', showBuildLogs: 'true')
+        openshift.openshiftBuild(buildConfig: 'nodejs-example', showBuildLogs: 'true')
       }
     }
 
