@@ -74,7 +74,7 @@ pipeline {
             openshift.withCluster() {
                 openshift.withProject() {
                   //openshift.tag("${BUILD_NAME}:latest", "${APP_NAME}-staging:latest")
-                  openshiftTag srcStream: ${BUILD_NAME},   namespace: openshift.withProject(), srcTag: 'latest', destinationNamespace: ${NS_DEV},destStream: ${BUILD_NAME}, destTag: 'dev' 
+                  openshiftTag srcStream: '${BUILD_NAME}',   namespace: openshift.withProject(), srcTag: 'latest', destinationNamespace: '${NS_DEV}',destStream: '${BUILD_NAME}', destTag: 'dev' 
                 }
             }
         }
