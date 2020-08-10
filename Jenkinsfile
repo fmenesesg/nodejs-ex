@@ -1,92 +1,87 @@
-retriever: modernSCM(
-  [
-    $class: "GitSCMSource",
-    remote: "https://github.com/fmenesesg/nodejs-ex.git"
-  ]
-)
-
-openshift.withCluster() {
-  env.APP_NAME = "fm-pelorus-nodejs"
-  env.BUILD = openshift.project()
-  env.DEV = "${APP_NAME}-dev"
-  env.STAGE = "${APP_NAME}-stage"
-  env.PROD = "${APP_NAME}-prod"
-  echo "Starting Pipeline for ${APP_NAME}..."
-}
+//def templatePath = 'https://raw.githubusercontent.com/openshift/nodejs-ex/master/openshift/templates/nodejs-mongodb.json' 
+def BUILD_NAME = 'nodejs-example'
+def NS_NAME = "fm-pelorus-nodejs"
+def BUILD = openshift.project()
+def NS_DEV = "${APP_NAME}-dev"
+def NS_STAGE = "${APP_NAME}-stage"
+def NS_PROD = "${APP_NAME}-prod"
 
 pipeline {
   agent {
-    label 'nodejs'
+    node {
+      label 'nodejs' 
+    }
   }
-
+  options {
+    timeout(time: 20, unit: 'MINUTES') 
+  }
   stages {
-    
-/*    stage('Git Checkout') {
+    stage('preamble') {
+        steps {
+            script {
+                openshift.withCluster() {
+                    openshift.withProject() {
+                        echo "Using project: ${openshift.project()}"
+                    }
+                }
+            }
+        }
+    }
+    /*stage('cleanup') {
       steps {
-        git url: "${SOURCE_REPOSITORY_URL}", branch: "${SOURCE_REPOSITORY_REF}"
+        script {
+            openshift.withCluster() {
+                openshift.withProject() {
+                  openshift.selector("all", [ template : templateName ]).delete() 
+                  if (openshift.selector("secrets", templateName).exists()) { 
+                    openshift.selector("secrets", templateName).delete()
+                  }
+                }
+            }
+        }
       }
     }*/
-
-    stage('Build') {
-      steps {
-        openshift.openshiftBuild(buildConfig: 'nodejs-example', showBuildLogs: 'true')
-      }
-    }
-
-    stage('Promote from Build to Dev') {
-      steps {
-        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
-      }
-    }
-
-    stage('Verify Deployment to Dev') {
-      steps {
-        verifyDeployment(projectName: env.DEV, targetApp: env.APP_NAME)
-      }
-    }
-
-    stage('Promotion gate (Stage)') {
+    /*stage('create') {
       steps {
         script {
-	  if(!("${SKIP_MANUAL_PROMOTION}").toBoolean()) {
-            input message: 'Promote Application to Stage?'
-          }
+            openshift.withCluster() {
+                openshift.withProject() {
+                  openshift.newApp(templatePath) 
+                }
+            }
+        }
+      }
+    }*/
+    stage('build') {
+      steps {
+        script {
+            openshift.withCluster() {
+                openshift.withProject() {
+                  def builds = openshift.selector("bc", BUILD_NAME).related('builds')
+                  timeout(5) { 
+                    builds.untilEach(1) {
+                      return (it.object().status.phase == "Complete")
+                    }
+                  }
+                }
+            }
         }
       }
     }
-
-    stage('Promote from Dev to Stage') {
-      steps {
-        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.DEV, toImagePath: env.STAGE)
-      }
-    }
-
-    stage('Verify Deployment to Stage') {
-      steps {
-        verifyDeployment(projectName: env.STAGE, targetApp: env.APP_NAME)
-      }
-    }
-
-    stage('Promotion gate (Prod)') {
+    stage('tag') {
       steps {
         script {
-          if(!("${SKIP_MANUAL_PROMOTION}").toBoolean()) {
-            input message: 'Promote Application to Prod?'
-          }
+            openshift.withCluster() {
+                openshift.withProject() {
+                  //openshift.tag("${BUILD_NAME}:latest", "${APP_NAME}-staging:latest")
+                  openshiftTag srcStream: ${BUILD_NAME},   namespace: openshift.withProject(), srcTag: 'latest', destinationNamespace: ${NS_DEV},destStream: ${BUILD_NAME}, destTag: 'dev' 
+                }
+            }
         }
-      }
-    }
-
-    stage('Promote from Stage to Prod') {
-      steps {
-        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.STAGE, toImagePath: env.PROD)
-      }
-    }
-
-    stage('Verify Deployment to Prod') {
-      steps {
-        verifyDeployment(projectName: env.PROD, targetApp: env.APP_NAME)
       }
     }
   }
 }
+
+
+
