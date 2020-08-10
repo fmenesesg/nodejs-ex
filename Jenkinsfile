@@ -5,7 +5,7 @@ retriever: modernSCM(
   ]
 )
 
-withCluster() {
+openshift.withCluster() {
   env.APP_NAME = "fm-pelorus-nodejs"
   env.BUILD = openshift.project()
   env.DEV = "${APP_NAME}-dev"
