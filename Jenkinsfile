@@ -29,17 +29,17 @@ pipeline {
 
     stage('Build') {
       steps {
-        openshift.openshiftBuild(buildConfig: 'nodejs-example', showBuildLogs: 'true')
+        openshiftBuild(buildConfig: 'nodejs-example', showBuildLogs: 'true')
       }
     }
 
     stage('Promote from Build to Dev') {
       steps {
-        openshift.tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
+        tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
       }
     }
 
-    stage('Verify Deployment to Dev') {
+/*    stage('Verify Deployment to Dev') {
       steps {
         openshift.verifyDeployment(projectName: env.DEV, targetApp: env.APP_NAME)
       }
@@ -86,7 +86,7 @@ pipeline {
     stage('Verify Deployment to Prod') {
       steps {
         openshift.verifyDeployment(projectName: env.PROD, targetApp: env.APP_NAME)
-      }
+      }*/
     }
   }
 }
