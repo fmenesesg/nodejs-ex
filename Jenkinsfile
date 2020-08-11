@@ -59,7 +59,7 @@ pipeline {
                 openshift.withProject() {
                   def builds = openshift.selector("bc", BUILD_NAME).related('builds')
                   timeout(5) { 
-                    builds.startBuild
+                    builds.startBuild()
                     builds.watch {
                         if ( it.count() == 0 ) return false
 
