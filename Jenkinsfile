@@ -1,10 +1,10 @@
 //def templatePath = 'https://raw.githubusercontent.com/openshift/nodejs-ex/master/openshift/templates/nodejs-mongodb.json' 
-def BUILD_NAME = 'nodejs-example'
+def BUILD_NAME = 'pelorus-nodejs'
 def NS_NAME = "fm-pelorus-nodejs"
 def BUILD = openshift.project()
-def NS_DEV = "fm-pelorus-dev"
-def NS_STAGE = "fm-pelorus-stage"
-def NS_PROD = "fm-pelorus-prod"
+def NS_DEV = "pelorus-nodejs-dev"
+def NS_STAGE = "pelorus-nodejs-stage"
+def NS_PROD = "pelorus-node-prod"
 
 pipeline {
   agent {
@@ -73,7 +73,7 @@ pipeline {
         script {
             openshift.withCluster() {
                 openshift.withProject() {
-                  openshift.tag("fm-pelorus-build/${BUILD_NAME}:latest", "${NS_DEV}/${BUILD_NAME}-dev:latest")
+                  openshift.tag("pelorus-nodejs-build/${BUILD_NAME}:latest", "${NS_DEV}/${BUILD_NAME}-dev:latest")
                   //openshift.openshiftTag srcStream: '${BUILD_NAME}',   namespace: '${BUILD}', srcTag: 'latest', destinationNamespace: '${NS_DEV}',destStream: '${BUILD_NAME}', destTag: 'dev' 
                 }
             }
