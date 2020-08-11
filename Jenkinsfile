@@ -58,10 +58,8 @@ pipeline {
             openshift.withCluster() {
                 openshift.withProject() {
                   def builds = openshift.selector("bc", BUILD_NAME)
-                  timeout(5) { 
-                    builds.startBuild().logs('-f')
-                    sleep 30
-                  }
+                  builds.startBuild()
+                  sleep 30
                 }
             }
         }
