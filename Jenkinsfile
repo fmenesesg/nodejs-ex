@@ -59,7 +59,7 @@ pipeline {
                 openshift.withProject() {
                   def builds = openshift.selector("bc", BUILD_NAME)
                   builds.startBuild()
-                  sleep 30
+                  sleep 90
                 }
             }
         }
