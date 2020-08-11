@@ -57,7 +57,7 @@ pipeline {
         script {
             openshift.withCluster() {
                 openshift.withProject() {
-                  def builds = openshift.selector("bc", BUILD_NAME).related('builds')
+                  def builds = openshift.selector("bc", BUILD_NAME)
                   timeout(5) { 
                     builds.startBuild()
                     builds.watch {
