@@ -70,6 +70,7 @@ pipeline {
         script {
             openshift.withCluster() {
                 openshift.withProject() {
+                  sleep 15
                   openshift.tag("pelorus-nodejs-build/${BUILD_NAME}:latest", "${NS_DEV}/${BUILD_NAME}-dev:latest")
                   //openshift.openshiftTag srcStream: '${BUILD_NAME}',   namespace: '${BUILD}', srcTag: 'latest', destinationNamespace: '${NS_DEV}',destStream: '${BUILD_NAME}', destTag: 'dev' 
                 }
